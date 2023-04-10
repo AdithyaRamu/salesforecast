@@ -26,5 +26,13 @@ tool that eventually will send the data to their Financial Planning tool.
 - I use Windows authenticaion here so I have given Integrated Security=true otherwise give userid and password instead of Integrated Security=true. 
 - Give database name for  Initial Catalog 
 
+
+## Screenshots
+###Home page
 ![App Screenshot](https://github.com/AdithyaRamu/salesforecast/blob/3eb72faa3e553a13d492fe90e278e8de90aab6fc/Salesforecast/screenshots/Home.png)
-(https://via.placeholder.com/468x300?text=App+Screenshot+Here)
+### Stage wise forecast
+![App Screenshot](https://github.com/AdithyaRamu/salesforecast/blob/7227f04f7c8bad6ed769b8f3d7a673a24ff22cf5/Salesforecast/screenshots/state_wise_forecast.png)
+### Bonus Story State Wise Chart
+![App Screenshot](https://github.com/AdithyaRamu/salesforecast/blob/7227f04f7c8bad6ed769b8f3d7a673a24ff22cf5/Salesforecast/screenshots/bonus_story_state_wise_chart.png)
+### Bonus Story State forecast
+![App Screenshot](https://github.com/AdithyaRamu/salesforecast/blob/7227f04f7c8bad6ed769b8f3d7a673a24ff22cf5/Salesforecast/screenshots/bonus_story_state_forecast.png)
