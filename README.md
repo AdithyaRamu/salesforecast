@@ -26,6 +26,5 @@ tool that eventually will send the data to their Financial Planning tool.
 - I use Windows authenticaion here so I have given Integrated Security=true otherwise give userid and password instead of Integrated Security=true. 
 - Give database name for  Initial Catalog 
 
-## Run
-
-
+![App Screenshot](https://github.com/AdithyaRamu/salesforecast/blob/3eb72faa3e553a13d492fe90e278e8de90aab6fc/Salesforecast/screenshots/Home.png)
+(https://via.placeholder.com/468x300?text=App+Screenshot+Here)
