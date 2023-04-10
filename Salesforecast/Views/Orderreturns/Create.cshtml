@@ -1,0 +1,201 @@
+﻿@model Salesforecast.Models.Orderreturns
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+
+
+<h4>SalesForcast on State Basis</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label class="control-label">Year of the Order</label>
+                <select class="form-control" id="orderyear"></select>
+
+            </div>
+            <div class="form-group">
+                <label class="control-label">State</label>
+                <select class="form-control" id="pstate"></select>
+
+            </div>
+            <div class="form-group">
+                <label class="control-label">Percentage</label>
+                <input class="form-control" type="number" step=".01" id="percentageinput" />
+
+            </div>
+            
+            <div class="form-group">
+                <button id="spercentagesales" onclick="event.preventDefault()" class="btn btn-primary">SalesPercentage Per State</button>
+            </div>
+            <div class="form-group">
+                <table id="spercenttable" name="spercenttable" class="display nowrap table table-bordered"></table>
+            </div>
+            
+        </form>
+    </div>
+</div>
+
+
+
+@section Scripts {
+    <script>
+        let baseURL = "../api/OrdersApi/";
+        var myTable;
+         $(document).ready(function () {
+          $("#orderyear").select2({
+              //  placeholder: "Select year",
+                allowClear: false,
+                width: "100%"
+            });
+             $("#orderyear").val(null).trigger("change");
+              $("#pstate").select2({
+                placeholder: "Select state",
+                allowClear: false,
+                width: "100%"
+            });
+            $("#pstate").val(null).trigger("change");
+        $.ajax({
+            type: "GET",
+            url: baseURL + 'getorderyear',
+            cache: false,
+            contentType: "application/json",
+            dataType: "json",
+            /* beforeSend: function () {
+            $("#EnvironmentLoader").show();
+            },
+            complete: function () {
+            $("#EnvironmentLoader").hide();
+            },*/
+
+            success: function (response) {
+                let data = [];
+                let options = '';
+
+
+                $.each(response, function (key, value) {
+                    options += '<option value="' + value['year'] + '">' + value['year'] + '</option>';
+
+                });
+                $("#orderyear").html(options);
+            }
+        });
+         $.ajax({
+            type: "GET",
+            url: baseURL + 'getstate',
+            cache: false,
+            contentType: "application/json",
+            dataType: "json",
+            /* beforeSend: function () {
+            $("#EnvironmentLoader").show();
+            },
+            complete: function () {
+            $("#EnvironmentLoader").hide();
+            },*/
+
+            success: function (response) {
+                let data = [];
+                let options = '';
+
+
+                $.each(response, function (key, value) {
+                    options += '<option value="' + value['state'] + '">' + value['state'] + '</option>';
+
+                });
+                $("#pstate").html(options);
+            }
+         });
+
+              });
+        /*  $("#orderyear").on('change', function () {
+
+          });*/
+
+        $('#spercentagesales').on('click', function (event) {
+            var orderyear = document.getElementById('orderyear').value;
+            var percentageinput = document.getElementById('percentageinput').value;
+            var state = document.getElementById('pstate').value;
+           
+
+            $("#spercenttable").html('');
+
+            $.ajax({
+                type: "GET",
+                url: baseURL + 'getstatesales/' + orderyear + '/' + percentageinput+ '/' + state,
+                cache: false,
+                contentType: "application/json",
+                dataType: "json",
+                /* beforeSend: function () {
+                     $("#EnvironmentLoader").show();
+                 },
+                 complete: function () {
+                     $("#EnvironmentLoader").hide();
+                 },*/
+
+                success: function (response) {
+                    let currentTAbleValue = $("#spercenttable").html();
+                    console.log(currentTAbleValue);
+                    if (currentTAbleValue == '') {
+                        console.log('its null');
+
+
+                    }
+                    else {
+                        $('#spercenttable').DataTable().destroy();
+                        $('#spercenttable').empty();
+
+                    }
+                    console.log(response);
+                    percentage = '';
+                    percentage += '<thead style="text-align:center;"></br><th>State</th></br></br><th>ActualSale</th></br></br></br></br><th style="display:none">IncrementPercentage</th></br></br><th>ForecastedSale</th></br></br></thead>'
+
+                    var i = 0;
+
+                    nrOfRows = response.length;
+                    for (i = 0; i < nrOfRows; i++) {
+
+                        percentage += '<tr style="text-align:center" class="col-md-10">';
+
+
+
+                        percentage += '<td class="defaultflag">' + response[i]['state'] + '</td>';
+                        percentage += '<td class="defaultflag" >' + response[i]['actualSale'] + '</td>';
+                        percentage += '<td class="defaultflag" style="display:none">' + percentageinput + '%</td>';
+                        percentage += '<td class="defaultflag" >' + response[i]['predictedSale'] + '</td>';
+
+                        percentage += '</tr>';
+
+                    }
+
+                    $("#spercenttable").html('');
+                    $("#spercenttable").html(percentage);
+                    /*  myTable = $('#spercenttable').DataTable({
+                          lengthChange: false,
+                          columnDefs: [{
+                              orderable: false,
+                              className: 'select-checkbox',
+                              targets: 0
+                          }],
+                          select: {
+                              style: 'single',
+                              selector: 'td:first-child'
+                          },
+                          order: [[1, 'asc']],
+                          "oLanguage": {
+                              "sSearch": "Search all columns:"
+                          },
+                          "iDisplayLength": 10,
+                          "bJQueryUI": true,
+                          "sPaginationType": "full_numbers",
+
+                      });
+                      $('.dataTable').wrap('<div class="dataTables_scroll" />');
+*/
+                }
+            });
+        });
+ </script>
+}

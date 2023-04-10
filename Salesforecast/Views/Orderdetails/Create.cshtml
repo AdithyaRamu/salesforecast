@@ -1,0 +1,368 @@
+﻿@model Salesforecast.Models.Orderdetails
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+
+<h4>State Wise Percentage Forecast</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label class="control-label">Year of the Order</label>
+                <select class="form-control" id="orderyear"></select>
+
+            </div>
+            <div class="form-group">
+                <label class="control-label">Percentage</label>
+                <input class="form-control" type="number" step=".01" id="percentageinput" />
+
+            </div>
+            <div class="form-group">
+                <label class="control-label">Total Percentage of Sales</label>
+                <div id="totalpercent"></div>
+
+            </div>
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-md-4">
+                        <button id="percentagesales" onclick="event.preventDefault()" class="btn btn-success">SalesPercentage</button>
+                    </div>
+                    <div class="col-md-4">
+                        <button id="export" style="display:none" onclick="event.preventDefault()" class="btn btn-success">ExportData</button>
+                    </div>
+                    <div class="col-md-4">
+                        <button id="chart" style="display:none" onclick="event.preventDefault()" class="btn btn-success">Viewchart</button>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group" id="chartdisplay" style="display:none">
+               
+                    <div id="container" style="width: 750px; height: 500px; margin: 0 auto"></div>
+               
+            </div>
+                <div class="form-group">
+                    
+                            <table id="percenttable" class="display nowrap table table-bordered"></table>
+
+                </div>
+
+
+        </form>
+    </div>
+</div>
+
+
+
+@section Scripts {
+    <script>
+        let baseURL = "../api/OrdersApi/";
+        var myTable;
+
+        $.ajax({
+            type: "GET",
+            url: baseURL + 'getorderyear',
+            cache: false,
+            contentType: "application/json",
+            dataType: "json",
+            /* beforeSend: function () {
+            $("#EnvironmentLoader").show();
+            },
+            complete: function () {
+            $("#EnvironmentLoader").hide();
+            },*/
+
+            success: function (response) {
+                let data = [];
+                let options = '';
+
+
+                $.each(response, function (key, value) {
+                    options += '<option value="' + value['year'] + '">' + value['year'] + '</option>';
+
+                });
+                $("#orderyear").html(options);
+            }
+        });
+
+        /*  $("#orderyear").on('change', function () {
+
+          });*/
+
+        $('#percentagesales').on('click', function (event) {
+            var orderyear = document.getElementById('orderyear').value;
+            var percentageinput = document.getElementById('percentageinput').value;
+            $.ajax({
+                type: "GET",
+                url: baseURL + 'gettotalprecentsales/' + orderyear + '/' + percentageinput,
+                cache: false,
+                contentType: "application/json",
+                dataType: "json",
+
+                success: function (response) {
+                    tpercentage = '';
+                    console.log(response);
+
+                    tpercentage += '<p>Actual Sales : ' + response[0] + '</p>';
+                    tpercentage += '<p>Forecasted Sales : ' + response[1] + '</p>';
+
+
+                    $("#totalpercent").html(tpercentage);
+                }
+            });
+
+            $("#percenttable").html('');
+
+            $.ajax({
+                type: "GET",
+                url: baseURL + 'getpercentagesales/' + orderyear + '/' + percentageinput,
+                cache: false,
+                contentType: "application/json",
+                dataType: "json",
+                /* beforeSend: function () {
+                     $("#EnvironmentLoader").show();
+                 },
+                 complete: function () {
+                     $("#EnvironmentLoader").hide();
+                 },*/
+
+                success: function (response) {
+                    let currentTAbleValue = $("#percenttable").html();
+                    console.log(currentTAbleValue);
+                    if (currentTAbleValue == '') {
+                        console.log('its null');
+
+
+                    }
+                    else {
+                        $('#percenttable').DataTable().destroy();
+                        $('#percenttable').empty();
+
+                    }
+                    console.log(response);
+                    percentage = '';
+                    percentage += '<thead style="text-align:center;"></br><th>State</th></br></br><th>ActualSale</th></br></br></br></br><th style="display:none">IncrementPercentage</th></br></br><th>ForecastedSale</th></br></br></thead>'
+
+                    var i = 0;
+
+                    nrOfRows = response.length;
+                    for (i = 0; i < nrOfRows; i++) {
+
+                        percentage += '<tr style="text-align:center" class="col-md-10">';
+
+
+
+                        percentage += '<td class="defaultflag">' + response[i]['state'] + '</td>';
+                        percentage += '<td class="defaultflag" >' + response[i]['actualSale'] + '</td>';
+                        percentage += '<td class="defaultflag" style="display:none">' + percentageinput + '%</td>';
+                        percentage += '<td class="defaultflag" >' + response[i]['predictedSale'] + '</td>';
+
+                        percentage += '</tr>';
+
+                    }
+
+                    $("#percenttable").html('');
+                    $("#percenttable").html(percentage);
+                    $("#export").show();
+                     $("#chart").show();
+                    
+                    /*  myTable = $('#percenttable').DataTable({
+                          lengthChange: false,
+                          columnDefs: [{
+                              orderable: false,
+                              className: 'select-checkbox',
+                              targets: 0
+                          }],
+                          select: {
+                              style: 'single',
+                              selector: 'td:first-child'
+                          },
+                          order: [[1, 'asc']],
+                          "oLanguage": {
+                              "sSearch": "Search all columns:"
+                          },
+                          "iDisplayLength": 10,
+                          "bJQueryUI": true,
+                          "sPaginationType": "full_numbers",
+
+                      });
+                      $('.dataTable').wrap('<div class="dataTables_scroll" />');
+*/
+                }
+            });
+        });
+        $('#chart').on('click', function (event) {
+              $("#chartdisplay").show();
+
+            var states = [];
+            var accept = [];
+            var pred = [];
+            $('#percenttable tr').each(function () {
+                var state = $(this).find('td:eq(0)').text();
+                var ac = parseFloat($(this).find('td:eq(1)').text());
+                var pr = parseFloat($(this).find('td:eq(3)').text());
+                states.push(state)
+                accept.push(ac)
+                pred.push(pr)
+            });
+            states.shift();
+            var chartData = {
+            chart: {
+                type: 'column'
+            },
+            title: {
+                text: 'State wise Sales'
+            },
+            xAxis: {
+                categories:states
+            },
+            yAxis: {
+                title: {
+                    text: 'Sales ($)'
+                }
+            },
+            series: [{
+                name: 'Actual Sales',
+                data: accept
+            },
+            {
+                name: 'Forcasted Sales',
+                data: pred
+            }]
+        };
+
+        // Create the chart
+        var chart = Highcharts.chart('container', chartData);
+
+
+
+
+
+
+
+
+        /*    var states = [];
+            var accept = [];
+            var pred = [];
+            $('#percenttable tr').each(function () {
+                var state = $(this).find('td:eq(0)').text();
+                var ac = parseFloat($(this).find('td:eq(1)').text());
+                var pr = parseFloat($(this).find('td:eq(3)').text());
+                states.push(state)
+                accept.push(ac)
+                pred.push(pr)
+            });
+         //   var data = {
+           //    table: 'percenttable'
+           // };
+          /*  var data = [{
+                states: states,
+                values: accept
+            },
+               {
+                    states: states,
+                    values: pred
+                }
+            ]
+           var data = {
+              x : ['a', 'b'],
+               values : [10,20] 
+            }
+            var chart = {
+               type: 'column'
+            };
+            var title = {
+               text: 'Data extracted from a HTML table in the page'   
+            };    
+         
+            var yAxis = {
+               allowDecimals: false,
+               title: {
+                  text: 'Units'
+               }
+            };
+         /*   var series = [{
+                name="states"
+                data=accept
+            }]
+         /*   var data1 = data.map( function(e) {
+            return [e.gateway, parseFloat(e.val)];
+});
+            
+           var tooltip = {
+               formatter: function () {
+                  return '<b>' + this.series.name + '</b><br/>' +
+                     this.point.y + ' ' + this.point.name.toLowerCase();
+               }
+            };
+            var credits = {
+               enabled: false
+            };  
+            var json = {};   
+            json.chart = chart; 
+            json.title = title; 
+            json.data = data;
+            console.log(data);
+            json.yAxis = yAxis;
+            json.credits = credits;  
+            json.tooltip = tooltip;
+            console.log(json)
+            $('#container').highcharts(json); 
+
+    */
+        });
+
+
+
+
+
+
+        const table = document.getElementById('percenttable');
+const exportBtn = document.getElementById('export');
+
+exportBtn.addEventListener('click', function () {
+    // Export to csv
+    const csv = toCsv(table);
+
+    // Download it
+    download(csv, 'ForecastedTable.csv');
+});
+
+        const toCsv = function (table) {
+    // Query all rows
+    const rows = table.querySelectorAll('tr');
+
+    return [].slice
+        .call(rows)
+        .map(function (row) {
+            // Query all cells
+            const cells = row.querySelectorAll('th,td');
+            return [].slice
+                .call(cells)
+                .map(function (cell) {
+                    return cell.textContent;
+                })
+                .join(',');
+        })
+        .join('\n');
+        };
+
+        const download = function (text, fileName) {
+    const link = document.createElement('a');
+    link.setAttribute('href', `data:text/csv;charset=utf-8,${encodeURIComponent(text)}`);
+    link.setAttribute('download', fileName);
+
+    link.style.display = 'none';
+    document.body.appendChild(link);
+
+    link.click();
+
+    document.body.removeChild(link);
+};
+    </script>
+}
+
+

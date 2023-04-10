@@ -1,0 +1,114 @@
+﻿@model Salesforecast.Models.Orders
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label class="control-label">Year of the Order</label>
+                <select class="form-control" id="orderyear"></select>
+
+            </div>
+
+            <div class="form-group">
+
+                <button id="chart" style="display:none" onclick="event.preventDefault()" class="btn btn-primary">ViewChart</button>
+
+            </div>
+            <div class="form-group">
+                <canvas id="myChart" style="width:100%;max-width:700px"></canvas>
+            </div>
+
+        </form>
+    </div>
+</div>
+@section Scripts {
+    <script>
+        let baseURL = "../api/OrdersApi/";
+       
+        var yearchart = new Array();
+
+
+        $.ajax({
+            type: "GET",
+            url: baseURL + 'getorderyear',
+            cache: false,
+            contentType: "application/json",
+            dataType: "json",
+            /* beforeSend: function () {
+                 $("#EnvironmentLoader").show();
+             },
+             complete: function () {
+                 $("#EnvironmentLoader").hide();
+             },*/
+
+            success: function (response) {
+                let data = [];
+                let options = '';
+
+
+                $.each(response, function (key, value) {
+                    options += '<option value="' + value['year'] + '">' + value['year'] + '</option>';
+                    yearchart.push(value['year']);
+                });
+                $("#orderyear").html(options);
+                $("#orderyear").trigger("change");
+            }
+        });
+
+        $.ajax({
+            type: "GET",
+            url: baseURL + 'getyearsales',
+            cache: false,
+            contentType: "application/json",
+            dataType: "json",
+            /* beforeSend: function () {
+                 $("#EnvironmentLoader").show();
+             },
+             complete: function () {
+                 $("#EnvironmentLoader").hide();
+             },*/
+
+            success: function (response) {
+                let data = [];
+                let options = '';
+
+
+                $.each(response, function (key, value) {
+                    options += '<option value="' + value['year'] + '">' + value['year'] + '</option>';
+                    yearchart.push(value['year']);
+                });
+                
+            }
+        });
+        $('#chart').on('click', function (event) {
+            console.log(yearchart);
+            var yValues = [55, 49, 44, 24];
+            var barColors = ["red", "green", "blue", "orange"];
+
+            new Chart("myChart", {
+                type: "bar",
+                data: {
+                    labels: yearchart,
+                    datasets: [{
+                        backgroundColor: barColors,
+                        data: yValues
+                    }]
+                },
+                options: {
+                    legend: { display: false },
+                    title: {
+                        display: true,
+                        text: "sales"
+                    }
+                }
+            });
+
+        });
+    </script>
+
+}

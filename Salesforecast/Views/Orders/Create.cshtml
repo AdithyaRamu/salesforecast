@@ -1,0 +1,239 @@
+﻿@model Salesforecast.Models.Orders
+
+@{
+    ViewData["Title"] = "Create";
+}
+<style>
+    .DataTable_scroll {
+        overflow: auto;
+    }
+</style>
+<h4>SalesForcast </h4>
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="form-group">
+                <label class="control-label">Year of the Order</label>
+                <select class="form-control" id="orderyear"></select>
+
+            </div>
+            <div class="form-group">
+                <label class="control-label">Total Sales</label>
+                <div id="totalsales"></div>
+
+            </div>
+            <div class="form-group">
+                <button id="chart" onclick="event.preventDefault()" class="btn btn-default">SateSales</button>
+            </div>
+            
+                <div class="form-group">
+                    <table id="statetable" class="display nowrap table table-bordered"></table>
+                </div>
+
+                <!--
+
+
+        <div class="form-group">
+            <label asp-for="ShipMode" class="control-label"></label>
+            <input asp-for="ShipMode" class="form-control" />
+            <span asp-validation-for="ShipMode" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="CustomerId" class="control-label"></label>
+            <input asp-for="CustomerId" class="form-control" />
+            <span asp-validation-for="CustomerId" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="CustomerName" class="control-label"></label>
+            <input asp-for="CustomerName" class="form-control" />
+            <span asp-validation-for="CustomerName" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Segment" class="control-label"></label>
+            <input asp-for="Segment" class="form-control" />
+            <span asp-validation-for="Segment" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Country" class="control-label"></label>
+            <input asp-for="Country" class="form-control" />
+            <span asp-validation-for="Country" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="City" class="control-label"></label>
+            <input asp-for="City" class="form-control" />
+            <span asp-validation-for="City" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="State" class="control-label"></label>
+            <input asp-for="State" class="form-control" />
+            <span asp-validation-for="State" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="PostalCode" class="control-label"></label>
+            <input asp-for="PostalCode" class="form-control" />
+            <span asp-validation-for="PostalCode" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Region" class="control-label"></label>
+            <input asp-for="Region" class="form-control" />
+            <span asp-validation-for="Region" class="text-danger"></span>
+        </div>
+                <div class="form-group">
+                    <input type="submit" value="Create" class="btn btn-default" />
+                </div>-->
+        </form>
+    </div>
+</div>
+
+<!--<div>
+    <a asp-action="Index">Back to List</a>
+</div>-->
+@section Scripts {
+    <script>
+        let baseURL = "../api/OrdersApi/";
+        var myTableweb;
+        var yearchart = new Array();
+
+        
+        $.ajax({
+            type: "GET",
+            url: baseURL + 'getorderyear',
+            cache: false,
+            contentType: "application/json",
+            dataType: "json",
+            /* beforeSend: function () {
+                 $("#EnvironmentLoader").show();
+             },
+             complete: function () {
+                 $("#EnvironmentLoader").hide();
+             },*/
+
+            success: function (response) {
+                let data = [];
+                let options = '';
+
+
+                $.each(response, function (key, value) {
+                    options += '<option value="' + value['year'] + '">' + value['year'] + '</option>';
+                    yearchart.push(value['year']);
+                });
+                $("#orderyear").html(options);
+                 $("#orderyear").trigger("change");
+            }
+        });
+
+        $("#orderyear").on('change', function () {
+            var orderyear = document.getElementById('orderyear').value;
+            $.ajax({
+                type: "GET",
+                url: baseURL + 'gettotalsales/' + orderyear,
+                cache: false,
+                contentType: "application/json",
+                dataType: "json",
+                /* beforeSend: function () {
+                     $("#EnvironmentLoader").show();
+                 },
+                 complete: function () {
+                     $("#EnvironmentLoader").hide();
+                 },*/
+
+                success: function (response) {
+
+
+
+                    $("#totalsales").html(response);
+                }
+            });
+
+             $("#statetable").html('');
+            var orderyear = document.getElementById('orderyear').value;
+            $.ajax({
+                type: "GET",
+                url: baseURL + 'getstatesales/' + orderyear,
+                cache: false,
+                contentType: "application/json",
+                dataType: "json",
+                /* beforeSend: function () {
+                     $("#EnvironmentLoader").show();
+                 },
+                 complete: function () {
+                     $("#EnvironmentLoader").hide();
+                 },*/
+
+                success: function (response) {
+                    let currentTAbleValue = $("#statetable").html();
+                    console.log(currentTAbleValue);
+                    if (currentTAbleValue == '') {
+                        console.log('its null');
+
+
+                    }
+                    else {
+                        //$('#statetable').DataTable().destroy();
+                        $('#statetable').empty();
+
+                    }
+                    console.log(response);
+                    state = '';
+                    state += '<thead style="text-align:center;"></br><th>State</th></br></br><th>TotalSales</th></br></br></thead>'
+
+                    var i = 0;
+
+                    nrOfRows = response.length;
+                    for (i = 0; i < nrOfRows; i++) {
+
+                        state += '<tr style="text-align:center" class="col-md-10" href="detail' + i + '">';
+
+
+
+                        state += '<td class="defaultflag">' + response[i]['state'] + '</td>';
+                        state += '<td class="defaultflag" >' + response[i]['totalSales'] + '</td>';
+
+                        state += '</tr>';
+
+                    }
+
+                    $("#statetable").html('');
+                    $("#statetable").html(state);
+
+               /*     myTableweb = $('#statetable').DataTable({
+                          lengthChange: false,
+                          columnDefs: [{
+                              orderable: false,
+                              className: 'select-checkbox',
+                              targets: 0
+                          }],
+                          select: {
+                              style: 'single',
+                              selector: 'td:first-child'
+                          },
+                          order: [[1, 'asc']],
+                          "oLanguage": {
+                              "sSearch": "Search all columns:"
+                          },
+                          "iDisplayLength": 10,
+                          "bJQueryUI": true,
+                          "sPaginationType": "full_numbers",
+
+                      });
+                      $('.dataTable').wrap('<div class="dataTables_scroll" />');
+
+                    */
+
+                }
+            });
+        });
+
+        /*  $('#statesales').on('click', function (event) {
+            
+
+        }); */
+
+
+ 
+
+    </script>
+
+}

@@ -1,0 +1,30 @@
+﻿thead tr {
+    background-color: palegreen
+}
+
+tbody tr:nth-child(even) {
+    background: #F1F0F0
+}
+
+tbody tr:nth-child(odd) {
+    background: #FFF
+}
+
+tbody tr:hover {
+    background-color: #ccf0fc
+}
+
+.btnposition {
+    display: inline-block;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.lo-border {
+    border: 1px outset grey;
+    box-shadow: 3px 5px #a9e8fd;
+}
+
+#canceller {
+    padding-left: 10px
+}
